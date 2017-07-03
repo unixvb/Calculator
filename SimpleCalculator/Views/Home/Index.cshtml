@@ -1,0 +1,143 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <br />
+    <table>
+        <tr>
+            <td><p>Login:</p></td>
+            <td><input type="text" id="txtLogin" /></td>
+        </tr>
+        <tr>
+            <td><p>Result:</p></td>
+            <td><input type="text" id="txtResult" disabled /></td>
+        </tr>
+    </table>
+    <br />
+    <table id="calculator">
+        <tr>
+            <td><input type="button" value="1" /></td>
+            <td><input type="button" value="2" /></td>
+            <td><input type="button" value="3" /></td>
+            <td><input type="button" value="+" /></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="4" /></td>
+            <td><input type="button" value="5" /></td>
+            <td><input type="button" value="6" /></td>
+            <td><input type="button" value="-" /></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="7" /></td>
+            <td><input type="button" value="8" /></td>
+            <td><input type="button" value="9" /></td>
+            <td><input type="button" value="*" /></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="0" /></td>
+            <td><input type="button" value="C" /></td>
+            <td><input type="button" value="=" /></td>
+            <td><input type="button" value="/" /></td>
+        </tr>
+    </table>
+    <br />
+    <input type="button" id="getExpressions" value="Показать все операции" />
+    <br />
+    <table id="expressions_list" border="1"></table>
+
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $("#getExpressions").click(function () {
+                $.getJSON("/Home/Expressions", null, getExpressions);
+            });
+
+            function getExpressions(expressions) {
+                $("#expressions_list").html("");
+                $("#expressions_list").append("<tr><td><b>  Login  </b></td><td><b>  Operation  </b></td><td><b>  Result  </b></td></tr>");
+                $.each(expressions, function (i) {
+                    $("#expressions_list").append("<tr><td>" + this.Login + "</td><td>" + this.Operations + "</td><td>" + this.Result + "</td></tr>");
+                });
+            }
+
+            var keys = document.querySelectorAll('#calculator input');
+            var operators = ['+', '-', '*', '/'];
+
+            for (var i = 0; i < keys.length; i++) {
+                keys[i].onclick = function (e) {
+                    var input = document.querySelector('#txtResult');
+                    var inputVal = input.value;
+                    var btnVal = this.value;
+
+                    if (btnVal == 'C')
+                        input.value = '';
+
+                    else if (btnVal == '=') {
+
+                        var lastChar = inputVal[inputVal.length - 1];
+                        if (operators.indexOf(lastChar) > -1)
+                            inputVal = inputVal.replace(/.$/, '');
+
+                        var login = $("#txtLogin").val();
+                        if (login == "" || inputVal == "") {
+                            alert("You must enter login and operations");
+                            return;
+                        }
+                        //console.log(inputVal);
+
+                        var jsonObject = {
+                            "Login": login,
+                            "Operation": inputVal
+                        };
+
+                        //console.log(jsonObject);
+
+                        $.ajax({
+                            url: "/Home/AjaxMethod",
+                            type: "POST",
+                            data: JSON.stringify(jsonObject),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            error: function (response) {
+                                alert(response.responseText);
+                            },
+                            success: function (response) {
+                                input.value = response;
+                            }
+                        });
+
+                    }
+                    else if (operators.indexOf(btnVal) > -1) { //Operator clicked
+                        var lastChar = inputVal[inputVal.length - 1];
+
+                        if (inputVal != '' && operators.indexOf(lastChar) == -1)
+                            input.value += btnVal;
+                        else if (inputVal == '' && btnVal == '-') //Minus at the beginning
+                            input.value += btnVal;
+
+                        if (operators.indexOf(lastChar) > -1 && inputVal.length > 1) //Change last operator
+                            input.value = inputVal.replace(/.$/, btnVal);
+
+                        decimalAdded = false;
+                    }
+                    else { //Any other
+                        input.value += btnVal;
+                    }
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

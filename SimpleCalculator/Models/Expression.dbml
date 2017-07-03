@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="ExpressionsDB" Class="ExpressionDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="WebSettings" ConnectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\ExpressionsDB.mdf;Integrated Security=True" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="ExpressionsDBConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.Expression" Member="Expressions">
+    <Type Name="Expression">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Login" Type="System.String" DbType="NChar(64) NOT NULL" CanBeNull="false" />
+      <Column Name="Operations" Type="System.String" DbType="NChar(128) NOT NULL" CanBeNull="false" />
+      <Column Name="Result" Type="System.String" DbType="NChar(16) NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+</Database>
